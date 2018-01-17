@@ -1,0 +1,33 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+table tr:nth-child(odd) td {
+    background-color: #EEEEEE
+}
+
+.status {
+    font-weight: bolder
+}
+
+.red {
+    color: red
+}
+
+.yellow {
+    color: yellow
+}
+
+.green {
+    color: green
+}
+
+.blue {
+    color: blue
+}
+

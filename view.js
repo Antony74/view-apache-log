@@ -1,6 +1,24 @@
+//
+// Usage: node view.js [--html]
+//
+
+var filename = './access.log';
+var html = process.argv.reduce((accumulator, param) => accumulator || (param === '--html'), false);
+
 var fs = require('fs');
 
-var file = fs.readFileSync('./access.log', 'utf8');
+if (html) {
+    console.log('<!DOCTYPE html>');
+    console.log('<html>');
+    console.log('    <head>');
+    console.log('        <title>' + filename + '</title>');
+    console.log('        <link rel="stylesheet" href="access.css">');
+    console.log('    </head>');
+    console.log('    <body>');
+    console.log('       <table>');
+}
+
+var file = fs.readFileSync(filename, 'utf8');
 
 file.split('\n').filter((sLine) => sLine.length).forEach((sLine) => {
 
@@ -40,8 +58,33 @@ file.split('\n').filter((sLine) => sLine.length).forEach((sLine) => {
     ].join(' ');
 
     if (userName != '-') {
-        console.log([statusCode, dateString, ' ', userName, path ].join(' '));
+
+        if (html) {
+
+            var statusColor = 'yellow';
+
+            if (statusCode >= 200 && statusCode < 300) {
+                statusColor = 'green';
+            } else if (statusCode >= 400) {
+                statusColor = 'red';
+            }
+
+            console.log('               <tr>');
+            console.log('                   <td class="status ' + statusColor + '">' + statusCode + '</td>');
+            console.log('                   <td>' + dateString + '</td>');
+            console.log('                   <td class="blue">' + userName + '</td>');
+            console.log('                   <td>' + path + '</td>');
+            console.log('               </tr>');
+        } else {
+            console.log([statusCode, dateString, ' ', userName, path ].join(' '));
+        }
     }
 
 });
+
+if (html) {
+    console.log('       </table>');
+    console.log('    </body>');
+    console.log('<html>');
+}
 
