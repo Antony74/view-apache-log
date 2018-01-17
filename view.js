@@ -2,27 +2,46 @@ var fs = require('fs');
 
 var file = fs.readFileSync('./access.log', 'utf8');
 
-var head = (whole, seperator) => {
-    return whole.split(seperator).filter((sPart, nIndex) => nIndex === 0);
-}
+file.split('\n').filter((sLine) => sLine.length).forEach((sLine) => {
 
-var tail = (whole, seperator) => {
-    return [whole.split(seperator).filter((sPart, nIndex) => nIndex !== 0).join(seperator)];
-}
+    // Regular expression by user drew010 taken from https://stackoverflow.com/a/7603165
+    // under cc by-sa 3.0 with attribution required license.
+    var regex = /^(\S+) (\S+) (\S+) \[([^:]+):(\d+:\d+:\d+) ([^\]]+)\] \"(\S+) (.*?) (\S+)\" (\S+) (\S+) "([^"]*)" "([^"]*)"$/g;
 
-file.split('\n').forEach((sLine) => {
+    [
+        whole,
+        ipAddress,
+        dash,
+        userName,
+        date,
+        time,
+        zone,
+        method,
+        path,
+        protocol,
+        statusCode,
+        responseBytes,
+        referer,
+        userAgent
+    ] = regex.exec(sLine);
 
-    tail(sLine, ' - ').forEach((sPart) => {
+    var dateTime = new Date([date, time, zone].join(' '));
 
-        var sUsername = head(sPart, ' ').join();
+    var dateString = [
+        [
+            dateTime.getDate(),
+            dateTime.getMonth() +1,
+            dateTime.getFullYear()
+        ].join('/'),
+        [
+            dateTime.getHours(),
+            dateTime.getMinutes()
+        ].join(':')
+    ].join(' ');
 
-        if (sUsername != '-') {
-            var datetime = head(tail(sPart, '[').join(' '), ' ').join();
-            var sUrl = tail(sPart, ']').join(' ').split(' ')[2];
-            var sStatus = tail(sPart, ']').join(' ').split(' ')[4];
-            console.log([sStatus, datetime, ' ', sUsername, sUrl ].join(' '));
-        }
-    });
+    if (userName != '-') {
+        console.log([statusCode, dateString, ' ', userName, path ].join(' '));
+    }
 
 });
 
