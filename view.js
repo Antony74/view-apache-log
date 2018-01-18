@@ -1,9 +1,26 @@
 //
-// Usage: node view.js [--html]
+// Usage: node view.js [--html] [<access.log filename>]
 //
 
-var filename = './access.log';
-var html = process.argv.reduce((accumulator, param) => accumulator || (param === '--html'), false);
+var filename = __dirname + '/access.log';
+var html = false;
+
+process.argv.forEach((param, index) => {
+
+    if (index > 1) {
+        if (param[0] === '-') {
+            if (param === '--html') {
+                html = true;
+            } else {
+                console.log('Option ' + param + ' not recognised');
+                process.exit(1);
+            }
+        } else {
+            filename = param;
+        }
+    }
+
+})
 
 var fs = require('fs');
 
@@ -12,7 +29,9 @@ if (html) {
     console.log('<html>');
     console.log('    <head>');
     console.log('        <title>' + filename + '</title>');
-    console.log('        <link rel="stylesheet" href="access.css">');
+    console.log('        <style>');
+    console.log(fs.readFileSync(__dirname + '/access.css', 'utf8'));
+    console.log('        </style>');
     console.log('    </head>');
     console.log('    <body>');
     console.log('       <table>');
